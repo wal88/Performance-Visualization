@@ -1,14 +1,18 @@
 import pu.pi.ParIteratorFactory;
+
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import pt.runtime.CurrentTask;
+import pt.runtime.TaskID;
 
 import java.util.*;
 
 
 public class ParaTaskExample {
-	static int numOfArrays = 4;
+	final int NUM_OF_ARRAYS = 10;
 	AtomicInteger working=new AtomicInteger(0);
+	
 	
 	private int[] numbers;
     private int[] helper;
@@ -57,43 +61,51 @@ public class ParaTaskExample {
 
     }
     
-    private ArrayList<int[]> createArrays(int numOfArrays) {
+    private ArrayList<int[]> createArrays(int NUM_OF_ARRAYS) {
     	ArrayList<int[]> intArrays = new ArrayList<int[]>();
+    	System.out.println("Initializing arrays..");
     	
-    	for (int i = 0; i< numOfArrays; i++) {
-    	
-    	int[] array = new int[99999999];
+    	for (int i = 0; i< NUM_OF_ARRAYS; i++) {
+        	int[] array = new int[70000000];
 			for (int j=0; j< array.length; j++) {
 				array[j] = (int) Math.random()*5000;
 			}
 		intArrays.add(array);
-    	}
-    	return intArrays;
+		System.out.println("Created array " + i);
+		}
+		return intArrays;
     }
     
-    TASK(4) public void paraTask(Iterator<int[]> it) {
-		System.out.println("I am task number " + CurrentTask.relativeID());
-		System.out.println("I am thread number: " + CurrentTask.currentThreadID());
+    
+    TASK(NUM_OF_ARRAYS) public void paraTask(Iterator<int[]> it) {
+		System.out.println("I am task number " + CurrentTask.relativeID() + ", being sorted by thread number: " + CurrentTask.currentThreadID());
     	while (it.hasNext()) {
 			sort(it.next());
-
+			
 		}
 	}
+    
+    private void start() {
+    	
+		ArrayList<int[]> intArrays= createArrays(NUM_OF_ARRAYS);
+		System.out.println("There are " + intArrays.size() + " arrays to be sorted.");
+		Iterator<int[]> parIterator = ParIteratorFactory.createParIterator(intArrays, NUM_OF_ARRAYS);
+		
+		long startTime = System.currentTimeMillis();
+		TaskID<Void> id = paraTask(parIterator);
+		try {
+			id.waitTillFinished();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		long endTime = System.currentTimeMillis();
+		System.out.println("Operation took: "  + (endTime-startTime)/1000.0 + " seconds");
+    }
 	
 	public static void main(String[] args) {
-		System.out.println("Hello");
 		ParaTaskExample program = new ParaTaskExample();
-		int numOfThreads = 4;
-		
-		
-		ArrayList<int[]> intArrays= program.createArrays(numOfArrays);
-		System.out.println(intArrays.size());
-		Iterator<int[]> parIterator = ParIteratorFactory.createParIterator(intArrays, numOfThreads);
-		
-		long start = System.currentTimeMillis();
-		program.paraTask(parIterator);
-		
-		long end = System.currentTimeMillis();
-		System.out.println("Operation took: "  + (end-start)/1000.0 + " seconds");
+		program.start();
 	}
 }
