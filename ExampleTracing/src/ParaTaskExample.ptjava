@@ -64,11 +64,13 @@ public class ParaTaskExample {
     private ArrayList<int[]> createArrays(int NUM_OF_ARRAYS) {
     	ArrayList<int[]> intArrays = new ArrayList<int[]>();
     	System.out.println("Initializing arrays..");
-    	
-    	for (int i = 0; i< NUM_OF_ARRAYS; i++) {
-        	int[] array = new int[70000000];
+    	// int range is 2,147,483,647 - -2,147,483,648 +1
+    	double range = 4294967296.0;
+    	int min = -2147483648;
+    			for (int i = 0; i< NUM_OF_ARRAYS; i++) {
+        	int[] array = new int[40000000];
 			for (int j=0; j< array.length; j++) {
-				array[j] = (int) Math.random()*5000;
+				array[j] = (int) ( Math.random() * range) + min;
 			}
 		intArrays.add(array);
 		System.out.println("Created array " + i);
@@ -88,8 +90,9 @@ public class ParaTaskExample {
     private void start() {
     	
 		ArrayList<int[]> intArrays= createArrays(NUM_OF_ARRAYS);
-		System.out.println("There are " + intArrays.size() + " arrays to be sorted.");
 		Iterator<int[]> parIterator = ParIteratorFactory.createParIterator(intArrays, NUM_OF_ARRAYS);
+		
+		System.out.println("There are " + intArrays.size() + " arrays to be sorted. Timer started.");
 		
 		long startTime = System.currentTimeMillis();
 		TaskID<Void> id = paraTask(parIterator);
