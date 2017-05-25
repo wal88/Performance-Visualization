@@ -16,7 +16,7 @@ import java.util.ArrayList;//####[9]####
 import java.util.List;//####[9]####
 //####[9]####
 public class ParaTaskExample {//####[12]####
-//####[12]####
+    static{ParaTask.init();}//####[12]####
     /*  ParaTask helper method to access private/protected slots *///####[12]####
     public void __pt__accessPrivateSlot(Method m, Object instance, TaskID arg, Object interResult ) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {//####[12]####
         if (m.getParameterTypes().length == 0)//####[12]####
