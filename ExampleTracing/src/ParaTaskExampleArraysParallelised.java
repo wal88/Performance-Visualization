@@ -16,7 +16,7 @@ import java.util.ArrayList;//####[9]####
 import java.util.List;//####[9]####
 //####[9]####
 public class ParaTaskExampleArraysParallelised {//####[11]####
-    static{ParaTask.init();}//####[11]####
+//####[11]####
     /*  ParaTask helper method to access private/protected slots *///####[11]####
     public void __pt__accessPrivateSlot(Method m, Object instance, TaskID arg, Object interResult ) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {//####[11]####
         if (m.getParameterTypes().length == 0)//####[11]####
@@ -86,11 +86,11 @@ public class ParaTaskExampleArraysParallelised {//####[11]####
         }//####[63]####
     }//####[65]####
 //####[67]####
-    private static volatile Method __pt__paraArray__method = null;//####[67]####
-    private synchronized static void __pt__paraArray__ensureMethodVarSet() {//####[67]####
-        if (__pt__paraArray__method == null) {//####[67]####
+    private static volatile Method __pt__paraTaskCreateArray__method = null;//####[67]####
+    private synchronized static void __pt__paraTaskCreateArray__ensureMethodVarSet() {//####[67]####
+        if (__pt__paraTaskCreateArray__method == null) {//####[67]####
             try {//####[67]####
-                __pt__paraArray__method = ParaTaskHelper.getDeclaredMethod(new ParaTaskHelper.ClassGetter().getCurrentClass(), "__pt__paraArray", new Class[] {//####[67]####
+                __pt__paraTaskCreateArray__method = ParaTaskHelper.getDeclaredMethod(new ParaTaskHelper.ClassGetter().getCurrentClass(), "__pt__paraTaskCreateArray", new Class[] {//####[67]####
                     //####[67]####
                 });//####[67]####
             } catch (Exception e) {//####[67]####
@@ -98,21 +98,21 @@ public class ParaTaskExampleArraysParallelised {//####[11]####
             }//####[67]####
         }//####[67]####
     }//####[67]####
-    public TaskIDGroup<Void> paraArray() {//####[67]####
+    public TaskIDGroup<Void> paraTaskCreateArray() {//####[67]####
         //-- execute asynchronously by enqueuing onto the taskpool//####[67]####
-        return paraArray(new TaskInfo());//####[67]####
+        return paraTaskCreateArray(new TaskInfo());//####[67]####
     }//####[67]####
-    public TaskIDGroup<Void> paraArray(TaskInfo taskinfo) {//####[67]####
+    public TaskIDGroup<Void> paraTaskCreateArray(TaskInfo taskinfo) {//####[67]####
         // ensure Method variable is set//####[67]####
-        if (__pt__paraArray__method == null) {//####[67]####
-            __pt__paraArray__ensureMethodVarSet();//####[67]####
+        if (__pt__paraTaskCreateArray__method == null) {//####[67]####
+            __pt__paraTaskCreateArray__ensureMethodVarSet();//####[67]####
         }//####[67]####
         taskinfo.setParameters();//####[67]####
-        taskinfo.setMethod(__pt__paraArray__method);//####[67]####
+        taskinfo.setMethod(__pt__paraTaskCreateArray__method);//####[67]####
         taskinfo.setInstance(this);//####[67]####
         return TaskpoolFactory.getTaskpool().enqueueMulti(taskinfo, NUM_OF_ARRAYS);//####[67]####
     }//####[67]####
-    public void __pt__paraArray() {//####[67]####
+    public void __pt__paraTaskCreateArray() {//####[67]####
         int[] array = new int[4000000];//####[71]####
         for (int j = 0; j < array.length; j++) //####[72]####
         {//####[72]####
@@ -192,7 +192,7 @@ public class ParaTaskExampleArraysParallelised {//####[11]####
 //####[89]####
     private void start() {//####[89]####
         System.out.println("Initializing arrays..");//####[91]####
-        TaskID<Void> arrayTasks = paraArray();//####[92]####
+        TaskID<Void> arrayTasks = paraTaskCreateArray();//####[92]####
         try {//####[93]####
             arrayTasks.waitTillFinished();//####[94]####
         } catch (ExecutionException e) {//####[95]####

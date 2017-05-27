@@ -64,7 +64,7 @@ public class ParaTaskExampleArraysParallelised {
 
 	}
 
-	TASK(NUM_OF_ARRAYS)	public void paraArray() {
+	TASK(NUM_OF_ARRAYS)	public void paraTaskCreateArray() {
 		// int range is 2,147,483,647 - -2,147,483,648 +1
 		
 		// changing int array size to 40000000 takes 36 seconds
@@ -89,7 +89,7 @@ public class ParaTaskExampleArraysParallelised {
 	private void start() {
 
 		System.out.println("Initializing arrays..");
-		TaskID<Void> arrayTasks = paraArray();
+		TaskID<Void> arrayTasks = paraTaskCreateArray();
 		try {
 			arrayTasks.waitTillFinished();
 		} catch (ExecutionException e) {

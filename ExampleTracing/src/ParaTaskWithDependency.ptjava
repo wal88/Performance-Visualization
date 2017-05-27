@@ -10,67 +10,122 @@ import java.util.ArrayList;
 import utils.MergeSort;
 
 public class ParaTaskWithDependency {
-	final int NUM_OF_ARRAYS = 4;
-	final int LENGTH_OF_ARRAYS = 4000000;
+	final int NUM_OF_ARRAYS = 6;
+	final int LENGTH_OF_ARRAYS = 40000000;
+	ArrayList<int[]> intArrays = new ArrayList<int[]>();
 	private int[] numbers;
-    private int[] helper;
-    private int number;
+	private int[] helper;
+	private int number;
+
+	MergeSort ms = new MergeSort(numbers, helper, number);
 	
-    MergeSort ms = new MergeSort(numbers, helper, number);
+	TASK(NUM_OF_ARRAYS)	public void paraTaskCreateArrays() {
+		// int range is 2,147,483,647 - -2,147,483,648 +1
+		double range = 4294967296.0;
+		int min = -2147483648;
 
-
-    private ArrayList<int[]> createArrays(int numberOfArray, int lengthOfArray) {
-    	ArrayList<int[]> intArrays = new ArrayList<int[]>();
-    	System.out.println("Initializing arrays..");
-    	// int range is 2,147,483,647 - -2,147,483,648 +1
-    	double range = 4294967296.0;
-    	int min = -2147483648;
-    			for (int i = 0; i< numberOfArray; i++) {
-        	int[] array = new int[lengthOfArray];
-			for (int j=0; j< array.length; j++) {
-				array[j] = (int) ( Math.random() * range) + min;
-			}
-		intArrays.add(array);
-		System.out.println("Created array " + i);
+//		int sizeChoice = (int) (Math.random()*4) +1;
+//		int currentLengthOfArray = (int) (LENGTH_OF_ARRAYS * 0.25*sizeChoice);
+		int[] array = new int[LENGTH_OF_ARRAYS];
+		for (int j = 0; j < array.length; j++) {
+			array[j] = (int) (Math.random() * range) + min;
 		}
-		return intArrays;
-    }
-    
-    TASK public void paraTask(int[] array){
-    	ms.sort(array);
-    	System.out.println("Array is sorted by thread number: " + CurrentTask.currentThreadID());
-    }
-    
-    private void start() {
-    	
-		List<int[]> intArrays= createArrays(NUM_OF_ARRAYS,LENGTH_OF_ARRAYS);
-		//Iterator<int[]> parIterator = ParIteratorFactory.createParIterator(intArrays, NUM_OF_ARRAYS);
+		intArrays.add(array);
+		System.out.println("Created array " + CurrentTask.relativeID());
+
+	}
+
+
+	TASK public void paraTaskSort(int[] array) {
+		System.out.println("Now sorting Array with Task ID: " + CurrentTask.globalID() /*+", array size is: "+array.length*/);
+		ms.sort(array);
+		System.out.println("Array with Task ID: " + CurrentTask.globalID() + " has been sorted by thread number: "
+				+ CurrentTask.currentThreadID());
+	}
+	
+	TASK public void paraTaskProcess(int[] array1, int[] array2, String dependenceMessage) {
+		System.out.println("Now processing Array with Task ID: " + CurrentTask.globalID() + dependenceMessage);
+		if (array2.length == 0) {
+			for (int i=0; i < array1.length-1; i++)
+				array1[i] = array1[i]/2 + array1[i+1]/2;
+		} else {
+			for (int i = 0; i<array1.length-1; i++)
+				array1[i] = array1[i]/2 + array1[i+1]/2 + array2[i];
+		}
+		System.out.println("Array with Task ID: " + CurrentTask.globalID() + " has been processed by thread number: "
+				+ CurrentTask.currentThreadID());
+	}
+	
+	TASK public void paraTaskProcess2(int[] array1, int[] array2, int[] array3, String dependenceMessage) {
+		System.out.println("Now processing Array with Task ID: " + CurrentTask.globalID() + dependenceMessage);
+		for (int i = 0; i<array1.length-1; i++)
+				array1[i] = array1[i]/2 + array1[i+1]/2 + array2[i] + array3[i];
+		System.out.println("Array with Task ID: " + CurrentTask.globalID() + " has been processed by thread number: "
+				+ CurrentTask.currentThreadID());
+	}
+
+	private void start() {
+    	System.out.println("Initializing arrays in parallel..");
+		TaskID<Void> arrayTasks = paraTaskCreateArrays();
+		try {
+			arrayTasks.waitTillFinished();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}//Iterator<int[]> parIterator = ParIteratorFactory.createParIterator(intArrays, NUM_OF_ARRAYS);
 		
-		System.out.println("There are " + intArrays.size() + " arrays to be sorted. Timer started.");
+		System.out.println("There are " + intArrays.size() + " arrays to be sorted and processed. Timer started.");
 		
 		long startTime = System.currentTimeMillis();
-		TaskID<Void> id1 = paraTask(intArrays.get(0));
-		TaskID<Void> id2 = paraTask(intArrays.get(1)) dependsOn(id1);
-		TaskID<Void> id3 = paraTask(intArrays.get(2)) dependsOn(id1);
-		TaskID<Void> id4 = paraTask(intArrays.get(3)) dependsOn(id2,id3);
-		
+		String message = "";
+		TaskID<Void> sortId0 = paraTaskSort(intArrays.get(0));
+		TaskID<Void> sortId1 = paraTaskSort(intArrays.get(1));
+		TaskID<Void> sortId2 = paraTaskSort(intArrays.get(2));
+		TaskID<Void> sortId3 = paraTaskSort(intArrays.get(3));
+		TaskID<Void> sortId4 = paraTaskSort(intArrays.get(4));
+		TaskID<Void> sortId5 = paraTaskSort(intArrays.get(5));
 		try {
-			id1.waitTillFinished();
-			id2.waitTillFinished();
-			id3.waitTillFinished();
-			id4.waitTillFinished();
+			sortId0.waitTillFinished();
+			//After sorting first array, start processing it 
+			TaskID<Void> processId0 = paraTaskProcess(intArrays.get(0), new int[0], message);
+			
+			sortId1.waitTillFinished();
+			message = ", this task depends on Task "+processId0.globalID()+" which has completed."; 
+			TaskID<Void> processId1 = paraTaskProcess(intArrays.get(1), intArrays.get(0), message) dependsOn(processId0);
+			
+			sortId2.waitTillFinished();
+			TaskID<Void> processId2 = paraTaskProcess(intArrays.get(2), intArrays.get(0), message) dependsOn(processId0);
+			
+			sortId2.waitTillFinished();
+			TaskID<Void> processId3 = paraTaskProcess(intArrays.get(3), intArrays.get(0), message) dependsOn(processId0);
+			
+			sortId4.waitTillFinished();
+			message = ", this task depends on Tasks "+processId1.globalID()+" & "+processId2.globalID()+" which have completed."; 
+			TaskID<Void> processId4 = paraTaskProcess2(intArrays.get(4), intArrays.get(1), intArrays.get(2), message) dependsOn(processId1,processId2);
+			
+			sortId5.waitTillFinished();
+			message = ", this task depends on Tasks "+processId2.globalID()+" & "+processId3.globalID()+" which have completed."; 
+			TaskID<Void> processId5 = paraTaskProcess2(intArrays.get(5), intArrays.get(2), intArrays.get(3), message) dependsOn(processId2,processId3);
+			
+			processId0.waitTillFinished();
+			processId1.waitTillFinished();
+			processId2.waitTillFinished();
+			processId3.waitTillFinished();
+			processId4.waitTillFinished();
+			processId5.waitTillFinished();
 		} catch (ExecutionException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		long endTime = System.currentTimeMillis();
-		System.out.println("Operation took: "  + (endTime-startTime)/1000.0 + " seconds");
+		System.out.println("Operations complete. Time taken: "  + (endTime-startTime)/1000.0 + " seconds");
     }
-    
-    public static void main(String[] args) {
+
+	public static void main(String[] args) {
 		ParaTaskWithDependency program = new ParaTaskWithDependency();
 		program.start();
 	}
-    
+
 }
