@@ -4,17 +4,18 @@ import java.util.concurrent.atomic.AtomicInteger;//####[4]####
 import pt.runtime.CurrentTask;//####[6]####
 import pt.runtime.TaskID;//####[7]####
 import java.util.*;//####[9]####
-//####[9]####
-//-- ParaTask related imports//####[9]####
-import pt.runtime.*;//####[9]####
-import java.util.concurrent.ExecutionException;//####[9]####
-import java.util.concurrent.locks.*;//####[9]####
-import java.lang.reflect.*;//####[9]####
-import pt.runtime.GuiThread;//####[9]####
-import java.util.concurrent.BlockingQueue;//####[9]####
-import java.util.ArrayList;//####[9]####
-import java.util.List;//####[9]####
-//####[9]####
+import utils.MergeSort;//####[10]####
+//####[10]####
+//-- ParaTask related imports//####[10]####
+import pt.runtime.*;//####[10]####
+import java.util.concurrent.ExecutionException;//####[10]####
+import java.util.concurrent.locks.*;//####[10]####
+import java.lang.reflect.*;//####[10]####
+import pt.runtime.GuiThread;//####[10]####
+import java.util.concurrent.BlockingQueue;//####[10]####
+import java.util.ArrayList;//####[10]####
+import java.util.List;//####[10]####
+//####[10]####
 public class ParaTaskExample {//####[12]####
     static{ParaTask.init();}//####[12]####
     /*  ParaTask helper method to access private/protected slots *///####[12]####
@@ -27,165 +28,122 @@ public class ParaTaskExample {//####[12]####
             m.invoke(instance, arg, interResult);//####[12]####
     }//####[12]####
 //####[13]####
-    final int NUM_OF_ARRAYS = 10;//####[13]####
+    final int NUM_OF_ARRAYS = 8;//####[13]####
 //####[14]####
-    AtomicInteger working = new AtomicInteger(0);//####[14]####
+    final int LENGTH_OF_ARRAY = 4000000;//####[14]####
+//####[15]####
+    private int[] numbers;//####[15]####
+//####[16]####
+    private int[] helper;//####[16]####
 //####[17]####
-    private int[] numbers;//####[17]####
-//####[18]####
-    private int[] helper;//####[18]####
+    private int number;//####[17]####
 //####[19]####
-    private int number;//####[19]####
-//####[21]####
-    public void sort(int[] values) {//####[21]####
-        this.numbers = values;//####[22]####
-        number = values.length;//####[23]####
-        this.helper = new int[number];//####[24]####
-        mergesort(0, number - 1);//####[25]####
-    }//####[26]####
-//####[28]####
-    private void mergesort(int low, int high) {//####[28]####
-        if (low < high) //####[29]####
-        {//####[29]####
-            int middle = low + (high - low) / 2;//####[30]####
-            mergesort(low, middle);//####[31]####
-            mergesort(middle + 1, high);//####[32]####
-            merge(low, middle, high);//####[33]####
-        }//####[34]####
+    MergeSort ms = new MergeSort(numbers, helper, number);//####[19]####
+//####[20]####
+    private ArrayList<int[]> createArrays(int numbersOfArray, int lengthOfArray) {//####[20]####
+        ArrayList<int[]> intArrays = new ArrayList<int[]>();//####[21]####
+        System.out.println("Initializing arrays..");//####[22]####
+        double range = 4294967296.0;//####[24]####
+        int min = -2147483648;//####[25]####
+        for (int i = 0; i < numbersOfArray; i++) //####[26]####
+        {//####[26]####
+            int[] array = new int[lengthOfArray];//####[27]####
+            for (int j = 0; j < array.length; j++) //####[28]####
+            {//####[28]####
+                array[j] = (int) (Math.random() * range) + min;//####[29]####
+            }//####[30]####
+            intArrays.add(array);//####[31]####
+            System.out.println("Created array " + i);//####[32]####
+        }//####[33]####
+        return intArrays;//####[34]####
     }//####[35]####
-//####[37]####
-    private void merge(int low, int middle, int high) {//####[37]####
-        for (int i = low; i <= high; i++) //####[39]####
-        {//####[39]####
-            helper[i] = numbers[i];//####[40]####
-        }//####[41]####
-        int i = low;//####[43]####
-        int j = middle + 1;//####[44]####
-        int k = low;//####[45]####
-        while (i <= middle && j <= high) //####[46]####
-        {//####[46]####
-            if (helper[i] <= helper[j]) //####[47]####
-            {//####[47]####
-                numbers[k] = helper[i];//####[48]####
-                i++;//####[49]####
-            } else {//####[50]####
-                numbers[k] = helper[j];//####[51]####
-                j++;//####[52]####
-            }//####[53]####
-            k++;//####[54]####
-        }//####[55]####
-        while (i <= middle) //####[56]####
-        {//####[56]####
-            numbers[k] = helper[i];//####[57]####
-            k++;//####[58]####
-            i++;//####[59]####
-        }//####[60]####
-    }//####[62]####
-//####[64]####
-    private ArrayList<int[]> createArrays(int NUM_OF_ARRAYS) {//####[64]####
-        ArrayList<int[]> intArrays = new ArrayList<int[]>();//####[65]####
-        System.out.println("Initializing arrays..");//####[66]####
-        double range = 4294967296.0;//####[68]####
-        int min = -2147483648;//####[69]####
-        for (int i = 0; i < NUM_OF_ARRAYS; i++) //####[70]####
-        {//####[70]####
-            int[] array = new int[40000000];//####[71]####
-            for (int j = 0; j < array.length; j++) //####[72]####
-            {//####[72]####
-                array[j] = (int) (Math.random() * range) + min;//####[73]####
-            }//####[74]####
-            intArrays.add(array);//####[75]####
-            System.out.println("Created array " + i);//####[76]####
-        }//####[77]####
-        return intArrays;//####[78]####
-    }//####[79]####
-//####[82]####
-    private static volatile Method __pt__paraTask_IteratorintAr_method = null;//####[82]####
-    private synchronized static void __pt__paraTask_IteratorintAr_ensureMethodVarSet() {//####[82]####
-        if (__pt__paraTask_IteratorintAr_method == null) {//####[82]####
-            try {//####[82]####
-                __pt__paraTask_IteratorintAr_method = ParaTaskHelper.getDeclaredMethod(new ParaTaskHelper.ClassGetter().getCurrentClass(), "__pt__paraTask", new Class[] {//####[82]####
-                    Iterator.class//####[82]####
-                });//####[82]####
-            } catch (Exception e) {//####[82]####
-                e.printStackTrace();//####[82]####
-            }//####[82]####
-        }//####[82]####
-    }//####[82]####
-    public TaskIDGroup<Void> paraTask(Iterator<int[]> it) {//####[82]####
-        //-- execute asynchronously by enqueuing onto the taskpool//####[82]####
-        return paraTask(it, new TaskInfo());//####[82]####
-    }//####[82]####
-    public TaskIDGroup<Void> paraTask(Iterator<int[]> it, TaskInfo taskinfo) {//####[82]####
-        // ensure Method variable is set//####[82]####
-        if (__pt__paraTask_IteratorintAr_method == null) {//####[82]####
-            __pt__paraTask_IteratorintAr_ensureMethodVarSet();//####[82]####
-        }//####[82]####
-        taskinfo.setParameters(it);//####[82]####
-        taskinfo.setMethod(__pt__paraTask_IteratorintAr_method);//####[82]####
-        taskinfo.setInstance(this);//####[82]####
-        return TaskpoolFactory.getTaskpool().enqueueMulti(taskinfo, NUM_OF_ARRAYS);//####[82]####
-    }//####[82]####
-    public TaskIDGroup<Void> paraTask(TaskID<Iterator<int[]>> it) {//####[82]####
-        //-- execute asynchronously by enqueuing onto the taskpool//####[82]####
-        return paraTask(it, new TaskInfo());//####[82]####
-    }//####[82]####
-    public TaskIDGroup<Void> paraTask(TaskID<Iterator<int[]>> it, TaskInfo taskinfo) {//####[82]####
-        // ensure Method variable is set//####[82]####
-        if (__pt__paraTask_IteratorintAr_method == null) {//####[82]####
-            __pt__paraTask_IteratorintAr_ensureMethodVarSet();//####[82]####
-        }//####[82]####
-        taskinfo.setTaskIdArgIndexes(0);//####[82]####
-        taskinfo.addDependsOn(it);//####[82]####
-        taskinfo.setParameters(it);//####[82]####
-        taskinfo.setMethod(__pt__paraTask_IteratorintAr_method);//####[82]####
-        taskinfo.setInstance(this);//####[82]####
-        return TaskpoolFactory.getTaskpool().enqueueMulti(taskinfo, NUM_OF_ARRAYS);//####[82]####
-    }//####[82]####
-    public TaskIDGroup<Void> paraTask(BlockingQueue<Iterator<int[]>> it) {//####[82]####
-        //-- execute asynchronously by enqueuing onto the taskpool//####[82]####
-        return paraTask(it, new TaskInfo());//####[82]####
-    }//####[82]####
-    public TaskIDGroup<Void> paraTask(BlockingQueue<Iterator<int[]>> it, TaskInfo taskinfo) {//####[82]####
-        // ensure Method variable is set//####[82]####
-        if (__pt__paraTask_IteratorintAr_method == null) {//####[82]####
-            __pt__paraTask_IteratorintAr_ensureMethodVarSet();//####[82]####
-        }//####[82]####
-        taskinfo.setQueueArgIndexes(0);//####[82]####
-        taskinfo.setIsPipeline(true);//####[82]####
-        taskinfo.setParameters(it);//####[82]####
-        taskinfo.setMethod(__pt__paraTask_IteratorintAr_method);//####[82]####
-        taskinfo.setInstance(this);//####[82]####
-        return TaskpoolFactory.getTaskpool().enqueueMulti(taskinfo, NUM_OF_ARRAYS);//####[82]####
-    }//####[82]####
-    public void __pt__paraTask(Iterator<int[]> it) {//####[82]####
-        System.out.println("I am task number " + CurrentTask.relativeID() + ", being sorted by thread number: " + CurrentTask.currentThreadID());//####[83]####
-        while (it.hasNext()) //####[84]####
-        {//####[84]####
-            sort(it.next());//####[85]####
-        }//####[87]####
-    }//####[88]####
-//####[88]####
-//####[90]####
-    private void start() {//####[90]####
-        ArrayList<int[]> intArrays = createArrays(NUM_OF_ARRAYS);//####[92]####
-        Iterator<int[]> parIterator = ParIteratorFactory.createParIterator(intArrays, NUM_OF_ARRAYS);//####[93]####
-        System.out.println("There are " + intArrays.size() + " arrays to be sorted. Timer started.");//####[95]####
-        long startTime = System.currentTimeMillis();//####[97]####
-        TaskID<Void> id = paraTask(parIterator);//####[98]####
-        try {//####[99]####
-            id.waitTillFinished();//####[100]####
-        } catch (ExecutionException e) {//####[101]####
-            e.printStackTrace();//####[102]####
-        } catch (InterruptedException e) {//####[103]####
-            e.printStackTrace();//####[104]####
-        }//####[105]####
-        long endTime = System.currentTimeMillis();//####[106]####
-        System.out.println("Operation took: " + (endTime - startTime) / 1000.0 + " seconds");//####[107]####
-    }//####[108]####
-//####[110]####
-    public static void main(String[] args) {//####[110]####
-        ParaTaskExample program = new ParaTaskExample();//####[111]####
-        program.start();//####[112]####
-    }//####[113]####
-}//####[113]####
+//####[38]####
+    private static volatile Method __pt__paraTask_IteratorintAr_method = null;//####[38]####
+    private synchronized static void __pt__paraTask_IteratorintAr_ensureMethodVarSet() {//####[38]####
+        if (__pt__paraTask_IteratorintAr_method == null) {//####[38]####
+            try {//####[38]####
+                __pt__paraTask_IteratorintAr_method = ParaTaskHelper.getDeclaredMethod(new ParaTaskHelper.ClassGetter().getCurrentClass(), "__pt__paraTask", new Class[] {//####[38]####
+                    Iterator.class//####[38]####
+                });//####[38]####
+            } catch (Exception e) {//####[38]####
+                e.printStackTrace();//####[38]####
+            }//####[38]####
+        }//####[38]####
+    }//####[38]####
+    public TaskIDGroup<Void> paraTask(Iterator<int[]> it) {//####[38]####
+        //-- execute asynchronously by enqueuing onto the taskpool//####[38]####
+        return paraTask(it, new TaskInfo());//####[38]####
+    }//####[38]####
+    public TaskIDGroup<Void> paraTask(Iterator<int[]> it, TaskInfo taskinfo) {//####[38]####
+        // ensure Method variable is set//####[38]####
+        if (__pt__paraTask_IteratorintAr_method == null) {//####[38]####
+            __pt__paraTask_IteratorintAr_ensureMethodVarSet();//####[38]####
+        }//####[38]####
+        taskinfo.setParameters(it);//####[38]####
+        taskinfo.setMethod(__pt__paraTask_IteratorintAr_method);//####[38]####
+        taskinfo.setInstance(this);//####[38]####
+        return TaskpoolFactory.getTaskpool().enqueueMulti(taskinfo, NUM_OF_ARRAYS);//####[38]####
+    }//####[38]####
+    public TaskIDGroup<Void> paraTask(TaskID<Iterator<int[]>> it) {//####[38]####
+        //-- execute asynchronously by enqueuing onto the taskpool//####[38]####
+        return paraTask(it, new TaskInfo());//####[38]####
+    }//####[38]####
+    public TaskIDGroup<Void> paraTask(TaskID<Iterator<int[]>> it, TaskInfo taskinfo) {//####[38]####
+        // ensure Method variable is set//####[38]####
+        if (__pt__paraTask_IteratorintAr_method == null) {//####[38]####
+            __pt__paraTask_IteratorintAr_ensureMethodVarSet();//####[38]####
+        }//####[38]####
+        taskinfo.setTaskIdArgIndexes(0);//####[38]####
+        taskinfo.addDependsOn(it);//####[38]####
+        taskinfo.setParameters(it);//####[38]####
+        taskinfo.setMethod(__pt__paraTask_IteratorintAr_method);//####[38]####
+        taskinfo.setInstance(this);//####[38]####
+        return TaskpoolFactory.getTaskpool().enqueueMulti(taskinfo, NUM_OF_ARRAYS);//####[38]####
+    }//####[38]####
+    public TaskIDGroup<Void> paraTask(BlockingQueue<Iterator<int[]>> it) {//####[38]####
+        //-- execute asynchronously by enqueuing onto the taskpool//####[38]####
+        return paraTask(it, new TaskInfo());//####[38]####
+    }//####[38]####
+    public TaskIDGroup<Void> paraTask(BlockingQueue<Iterator<int[]>> it, TaskInfo taskinfo) {//####[38]####
+        // ensure Method variable is set//####[38]####
+        if (__pt__paraTask_IteratorintAr_method == null) {//####[38]####
+            __pt__paraTask_IteratorintAr_ensureMethodVarSet();//####[38]####
+        }//####[38]####
+        taskinfo.setQueueArgIndexes(0);//####[38]####
+        taskinfo.setIsPipeline(true);//####[38]####
+        taskinfo.setParameters(it);//####[38]####
+        taskinfo.setMethod(__pt__paraTask_IteratorintAr_method);//####[38]####
+        taskinfo.setInstance(this);//####[38]####
+        return TaskpoolFactory.getTaskpool().enqueueMulti(taskinfo, NUM_OF_ARRAYS);//####[38]####
+    }//####[38]####
+    public void __pt__paraTask(Iterator<int[]> it) {//####[38]####
+        System.out.println("I am task number " + CurrentTask.relativeID() + ", being sorted by thread number: " + CurrentTask.currentThreadID());//####[39]####
+        while (it.hasNext()) //####[40]####
+        {//####[40]####
+            ms.sort(it.next());//####[41]####
+        }//####[43]####
+    }//####[44]####
+//####[44]####
+//####[46]####
+    private void start() {//####[46]####
+        ArrayList<int[]> intArrays = createArrays(NUM_OF_ARRAYS, LENGTH_OF_ARRAY);//####[48]####
+        Iterator<int[]> parIterator = ParIteratorFactory.createParIterator(intArrays, NUM_OF_ARRAYS);//####[49]####
+        System.out.println("There are " + intArrays.size() + " arrays to be sorted. Timer started.");//####[51]####
+        long startTime = System.currentTimeMillis();//####[53]####
+        TaskID<Void> id = paraTask(parIterator);//####[54]####
+        try {//####[55]####
+            id.waitTillFinished();//####[56]####
+        } catch (ExecutionException e) {//####[57]####
+            e.printStackTrace();//####[58]####
+        } catch (InterruptedException e) {//####[59]####
+            e.printStackTrace();//####[60]####
+        }//####[61]####
+        long endTime = System.currentTimeMillis();//####[62]####
+        System.out.println("Operation took: " + (endTime - startTime) / 1000.0 + " seconds");//####[63]####
+    }//####[64]####
+//####[66]####
+    public static void main(String[] args) {//####[66]####
+        ParaTaskExample program = new ParaTaskExample();//####[67]####
+        program.start();//####[68]####
+    }//####[69]####
+}//####[69]####
