@@ -1,0 +1,3 @@
+paratask trace 1-4 where tracing the ParaTaskExample.java program
+paratask trace 5-6 where tracing the ParaTaskArraysParallelised.java program
+paratask trace 7 is tracing the ParaTaskWithDependency.java program
