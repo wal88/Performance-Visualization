@@ -1,0 +1,5 @@
+GitHub has rejected some files in this trace file because they are over 25mb (actually they are over 200mb, two are over 300mb).
+
+As a result, this trace file is incomplete.
+
+Also note it was too big for Vampir to open and analyse. It may be possible to open it in VampirServer.
